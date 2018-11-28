@@ -4,7 +4,7 @@ import Form from './styles/Form';
 import gql from 'graphql-tag';
 import formatMoney from '../lib/formatMoney';
 import ErrorMessage from './ErrorMessage';
-import Router from 'next/router'
+import Router from 'next/router';
 
 const CREATE_ITEM_MUTATION = gql`
   mutation CREATE_ITEM_MUTATION(
@@ -42,6 +42,28 @@ class CreateItem extends React.Component {
     this.setState({[name]: valueToShow});
   };
 
+  uploadFile = async e => {
+    const files = e.target.files;
+    const data = new FormData();
+    data.append('file', files[0]);
+    data.append('upload_preset', 'sickfits');
+
+    const res = await fetch(
+      'https://api.cloudinary.com/v1_1/dlk1acpgy/image/upload',
+      {
+        method: 'POST',
+        body: data,
+      },
+    );
+
+    const file = await res.json();
+
+    this.setState({
+      image: file.secure_url,
+      largeImage: file.eager[0].secure_url,
+    });
+  };
+
   render() {
     return (
       <Mutation mutation={CREATE_ITEM_MUTATION} variables={this.state}>
@@ -52,11 +74,25 @@ class CreateItem extends React.Component {
               const res = await createItem();
               Router.push({
                 pathname: '/item',
-                query: { id: res.data.createItem.id }
-              })
+                query: {id: res.data.createItem.id},
+              });
             }}>
             <ErrorMessage error={error} />
             <fieldset disabled={loading} aria-busy={loading}>
+              <label htmlFor="file">
+                Image
+                <input
+                  type="file"
+                  id="file"
+                  name="file"
+                  placeholder="Upload an Image"
+                  required
+                  onChange={this.uploadFile}
+                />
+                {this.state.image && (
+                  <img src={this.state.image} alt="Uploade Preview" />
+                )}
+              </label>
               <label htmlFor="title">
                 Title
                 <input

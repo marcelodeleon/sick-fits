@@ -44,7 +44,7 @@ const Mutations = {
     // Hash password.
     const password = await bcrypt.hash(args.password, 10);
 
-    const user = ctx.db.mutation.createUser(
+    const user = await ctx.db.mutation.createUser(
       {
         data: {
           ...args,
@@ -60,7 +60,7 @@ const Mutations = {
     // Set token into a cookie.
     ctx.response.cookie('token', token, {
       httpOnly: true,
-      maxAge: 1000 * 60 * 24 * 365,
+      maxAge: 1000 * 60 * 24 * 365, // 1 year cookie.
     })
 
     return user;

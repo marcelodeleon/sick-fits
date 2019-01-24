@@ -3,12 +3,12 @@ const jwt = require('jsonwebtoken');
 const {promisify} = require('util');
 const {randomBytes} = require('crypto');
 
-const setJWTCookie = ( ctx, token ) => {
+const setJWTCookie = (ctx, token) => {
   ctx.response.cookie('token', token, {
     httpOnly: true,
     maxAge: 1000 * 60 * 24 * 365, // 1 year cookie.
   });
-}
+};
 
 const Mutations = {
   async createItem(parent, args, ctx, info) {
@@ -132,7 +132,7 @@ const Mutations = {
     });
 
     const token = jwt.sign({userId: user.id}, process.env.APP_SECRET);
-    setJWTCookie(ctx, token)
+    setJWTCookie(ctx, token);
 
     return res;
   },

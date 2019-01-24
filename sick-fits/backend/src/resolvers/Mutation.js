@@ -1,5 +1,14 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const {promisify} = require('util');
+const {randomBytes} = require('crypto');
+
+const setJWTCookie = ( ctx, token ) => {
+  ctx.response.cookie('token', token, {
+    httpOnly: true,
+    maxAge: 1000 * 60 * 24 * 365, // 1 year cookie.
+  });
+}
 
 const Mutations = {
   async createItem(parent, args, ctx, info) {
@@ -56,12 +65,7 @@ const Mutations = {
     );
 
     const token = jwt.sign({userId: user.id}, process.env.APP_SECRET);
-
-    // Set token into a cookie.
-    ctx.response.cookie('token', token, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 24 * 365, // 1 year cookie.
-    });
+    setJWTCookie(ctx, token);
 
     return user;
   },
@@ -76,13 +80,8 @@ const Mutations = {
       throw new Error('Invalid password');
     }
 
-    // No need to refactor since it's used just two times in here,
-    // keep in mind.
     const token = jwt.sign({userId: user.id}, process.env.APP_SECRET);
-    ctx.response.cookie('token', token, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 24 * 365, // 1 year cookie.
-    });
+    setJWTCookie(ctx, token);
 
     return user;
   },
@@ -90,6 +89,52 @@ const Mutations = {
     ctx.response.clearCookie('token');
 
     return {message: 'Goodbye'};
+  },
+  async requestReset(parent, {email}, ctx, info) {
+    const user = await ctx.db.query.user({where: {email}});
+    if (!user) {
+      throw new Error(`No such user found for email ${email}`);
+    }
+
+    const randomBytesPromisified = promisify(randomBytes);
+    const resetToken = (await randomBytesPromisified(20)).toString('hex');
+    const resetTokenExpiry = Date.now() + 3600000; // 1 hour from now
+
+    await ctx.db.mutation.updateUser({
+      where: {email},
+      data: {resetToken, resetTokenExpiry},
+    });
+
+    return {message: 'Thanks!'};
+  },
+  async resetPassword(parent, args, ctx, info) {
+    const {resetToken, password, confirmPassword} = args;
+    if (password !== confirmPassword) {
+      throw new Error('Password and confirm password do not match.');
+    }
+
+    const [user] = await ctx.db.query.users({
+      where: {resetToken, resetTokenExpiry: Date.now - 3600000},
+    });
+
+    if (!user) {
+      throw new Error('Not allowed to change password');
+    }
+
+    const newPassword = await bcrypt.hash(password, 10);
+    const res = await ctx.db.mutation.updateUser({
+      where: {id: user.id},
+      data: {
+        password: newPassword,
+        resetToken: null,
+        resetTokenExpiry: null,
+      },
+    });
+
+    const token = jwt.sign({userId: user.id}, process.env.APP_SECRET);
+    setJWTCookie(ctx, token)
+
+    return res;
   },
 };
 

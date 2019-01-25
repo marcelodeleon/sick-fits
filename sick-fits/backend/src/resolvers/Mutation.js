@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {promisify} = require('util');
 const {randomBytes} = require('crypto');
+const {transport, makeANiceEmail} = require('../mail')
 
 const setJWTCookie = (ctx, token) => {
   ctx.response.cookie('token', token, {
@@ -104,6 +105,19 @@ const Mutations = {
       where: {email},
       data: {resetToken, resetTokenExpiry},
     });
+
+    const emailText = `
+      Please follow the link to reset your password:
+      \n\n
+      <a href="${process.env.FRONTEND_URL}/reset?resetToken=${resetToken}">Reset pass!</a>
+    `;
+
+    transport.sendMail({
+      from: 'marcdele@thm.com',
+      to: user.email,
+      subject: 'Your reset token!',
+      html: makeANiceEmail(emailText),
+    })
 
     return {message: 'Thanks!'};
   },

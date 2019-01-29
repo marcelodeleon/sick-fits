@@ -13,9 +13,18 @@ const setJWTCookie = (ctx, token) => {
 
 const Mutations = {
   async createItem(parent, args, ctx, info) {
+    if(!ctx.request.userId) {
+      throw new Error('No user signed in')
+    }
+
     const item = await ctx.db.mutation.createItem(
       {
         data: {
+          user: {
+            connect: {
+              id: ctx.request.userId
+            }
+          },
           ...args,
         },
       },

@@ -24,7 +24,9 @@ const Query = {
       throw new Error('You must be logged in!')
     }
 
+    console.log('before hasPermission')
     hasPermission(ctx.request.user, ['ADMIN', 'PERMISSIONUPDATE'])
+    console.log('after hasPermission')
     return ctx.db.query.users({}, info);
   }
 };

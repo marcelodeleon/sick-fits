@@ -54,7 +54,16 @@ const Mutations = {
 
     // Intermediary query, instead of passing info we pass
     // raw GraphQL to specify what is returned.
-    const item = await ctx.db.query.item({where}, `{id title}`);
+    const wanted = `{id title user {id}}`
+    const item = await ctx.db.query.item({where}, wanted);
+
+    const user = ctx.request.user
+    const ownsItem = user === item.user
+    const hasPermission = user.permissions.some(permission => ['ADMIN', 'ITEMDELETE'].includes(permission)) 
+
+    if(!ownsItem && !hasPermission) {
+      throw new Error("You don't have permission to delete this item")
+    }
 
     return ctx.db.mutation.deleteItem({where}, info);
   },

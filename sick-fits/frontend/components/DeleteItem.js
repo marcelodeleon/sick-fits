@@ -14,7 +14,7 @@ const DELETE_ITEM_MUTATION = gql`
 class DeleteItem extends React.Component {
   handleDelete = (e, deleteItem, error) => {
     if (confirm('Are you sure you want to delete this item?')) {
-      deleteItem();
+      deleteItem().catch(error => alert(error.message));
     }
   };
 

@@ -2,7 +2,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {promisify} = require('util');
 const {randomBytes} = require('crypto');
-const {transport, makeANiceEmail} = require('../mail')
+const {transport, makeANiceEmail} = require('../mail');
+const {hasPermission} = require('../utils');
 
 const setJWTCookie = (ctx, token) => {
   ctx.response.cookie('token', token, {
@@ -13,8 +14,8 @@ const setJWTCookie = (ctx, token) => {
 
 const Mutations = {
   async createItem(parent, args, ctx, info) {
-    if(!ctx.request.userId) {
-      throw new Error('No user signed in')
+    if (!ctx.request.userId) {
+      throw new Error('No user signed in');
     }
 
     const item = await ctx.db.mutation.createItem(
@@ -22,8 +23,8 @@ const Mutations = {
         data: {
           user: {
             connect: {
-              id: ctx.request.userId
-            }
+              id: ctx.request.userId,
+            },
           },
           ...args,
         },
@@ -118,7 +119,9 @@ const Mutations = {
     const emailText = `
       Please follow the link to reset your password:
       \n\n
-      <a href="${process.env.FRONTEND_URL}/reset?resetToken=${resetToken}">Reset pass!</a>
+      <a href="${
+        process.env.FRONTEND_URL
+      }/reset?resetToken=${resetToken}">Reset pass!</a>
     `;
 
     transport.sendMail({
@@ -126,7 +129,7 @@ const Mutations = {
       to: user.email,
       subject: 'Your reset token!',
       html: makeANiceEmail(emailText),
-    })
+    });
 
     return {message: 'Thanks!'};
   },
@@ -158,6 +161,21 @@ const Mutations = {
     setJWTCookie(ctx, token);
 
     return res;
+  },
+  async updatePermissions(parent, args, ctx, info) {
+    if (!ctx.request.userId) {
+      throw new Error('You need to sign in!');
+    }
+
+    hasPermission(ctx.request.user, ['ADMIN', 'PERMISSIONUPDATE']);
+
+    return ctx.db.mutation.updateUser(
+      {
+        where: {id: args.id},
+        data: {permissions: {set: args.permissions}},
+      },
+      info,
+    );
   },
 };
 

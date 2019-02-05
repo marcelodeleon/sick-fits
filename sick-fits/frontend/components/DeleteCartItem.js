@@ -28,6 +28,14 @@ class DeleteCartItem extends React.Component {
     id: PropTypes.string.isRequired,
   };
 
+  update = (cache, payload) => {
+    const data = cache.readQuery({query: CURRENT_USER_QUERY});
+    const cartItemId = payload.data.removeFromCart.id;
+    data.me.cart = data.me.cart.filter(cartItem => cartItem.id !== cartItemId);
+
+    cache.writeQuery({query: CURRENT_USER_QUERY, data});
+  };
+
   render() {
     return (
       <Mutation
@@ -35,7 +43,15 @@ class DeleteCartItem extends React.Component {
         variables={{
           id: this.props.id,
         }}
-        refetchQueries={[{query: CURRENT_USER_QUERY}]}>
+        update={this.update}
+        optimisticResponse={{
+          __typename: 'Mutation',
+          removeFromCart: {
+          __typename: 'CartItem',
+            id: this.props.id
+          }
+        }}
+      >
         {(removeFromCart, {loading}) => (
           <BigButton
             title="Delete item"

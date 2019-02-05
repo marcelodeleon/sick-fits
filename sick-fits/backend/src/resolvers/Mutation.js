@@ -54,15 +54,17 @@ const Mutations = {
 
     // Intermediary query, instead of passing info we pass
     // raw GraphQL to specify what is returned.
-    const wanted = `{id title user {id}}`
+    const wanted = `{id title user {id}}`;
     const item = await ctx.db.query.item({where}, wanted);
 
-    const user = ctx.request.user
-    const ownsItem = user === item.user
-    const hasPermission = user.permissions.some(permission => ['ADMIN', 'ITEMDELETE'].includes(permission)) 
+    const user = ctx.request.user;
+    const ownsItem = user === item.user;
+    const hasPermission = user.permissions.some(permission =>
+      ['ADMIN', 'ITEMDELETE'].includes(permission),
+    );
 
-    if(!ownsItem && !hasPermission) {
-      throw new Error("You don't have permission to delete this item")
+    if (!ownsItem && !hasPermission) {
+      throw new Error("You don't have permission to delete this item");
     }
 
     return ctx.db.mutation.deleteItem({where}, info);
@@ -182,6 +184,47 @@ const Mutations = {
       {
         where: {id: args.id},
         data: {permissions: {set: args.permissions}},
+      },
+      info,
+    );
+  },
+  async addToCart(parent, args, ctx, info) {
+    const {userId} = ctx.request;
+    if (!userId) {
+      throw new Error('You will need to be logged in soon');
+    }
+
+    const [existingCartItem] = await ctx.db.query.cartItems({
+      where: {
+        item: {id: args.id},
+        user: {id: userId},
+      },
+    });
+
+    if (existingCartItem) {
+      return ctx.db.mutation.updateCartItem(
+        {
+          where: {id: existingCartItem.id},
+          data: {quantity: existingCartItem.quantity + 1},
+        },
+        info,
+      );
+    }
+
+    return ctx.db.mutation.createCartItem(
+      {
+        data: {
+          user: {
+            connect: {
+              id: userId,
+            },
+          },
+          item: {
+            connect: {
+              id: args.id,
+            },
+          },
+        },
       },
       info,
     );

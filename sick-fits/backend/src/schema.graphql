@@ -20,6 +20,7 @@ type Mutation {
   requestReset(email: String!): SuccessMessage
   resetPassword(resetToken: String!, password: String!, confirmPassword: String!): User!
   updatePermissions(permissions: [Permission], id: ID!): User!
+  addToCart(id: ID!): CartItem!
 }
 
 type Query {

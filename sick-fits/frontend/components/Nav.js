@@ -5,6 +5,7 @@ import Signout from './Signout';
 import {Mutation} from 'react-apollo';
 import {TOGGLE_CART_MUTATION} from './Cart';
 import CartCount from './CartCount';
+import calcTotalItems from '../lib/calcTotalItems'
 
 const Nav = () => (
   <User>
@@ -30,10 +31,7 @@ const Nav = () => (
                 <button onClick={toggleCart}>
                   My Cart
                   <CartCount
-                    count={me.cart.reduce(
-                      (tally, cartItem) => tally + cartItem.quantity,
-                      0,
-                    )}
+                    count={calcTotalItems(me.cart)}
                   />
                 </button>
               )}

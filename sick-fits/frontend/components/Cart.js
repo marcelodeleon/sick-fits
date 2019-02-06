@@ -9,6 +9,7 @@ import User from './User';
 import CartItem from './CartItem';
 import calcTotalPrice from '../lib/calcTotalPrice';
 import formatMoney from '../lib/formatMoney';
+import calcTotalItems from '../lib/calcTotalItems';
 
 const LOCAL_STATE_QUERY = gql`
   query {
@@ -39,7 +40,7 @@ const Cart = props => (
                     </CloseButton>
                     <Supreme>{me.name}'s Cart</Supreme>
                     <p>
-                      You have {me.cart.length} item
+                      You have {calcTotalItems(me.cart)} item
                       {me.cart.length === 1 ? '' : 's'} in your cart.
                     </p>
                   </header>

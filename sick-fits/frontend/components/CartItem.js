@@ -19,22 +19,32 @@ const CartItemStyled = styled.li`
   }
 `;
 
-const CartItem = ({cartItem}) => (
-  <CartItemStyled>
-    <img width="100" src={cartItem.item.image} alt={cartItem.item.title} />
-    <div className="cart-item-details">
-      <h3>{cartItem.item.title}</h3>
-      <p>
-        {formatMoney(cartItem.item.price * cartItem.quantity)}
-        {' - '}
-        <em>
-          {cartItem.quantity} &times; {formatMoney(cartItem.item.price)} each
-        </em>
-      </p>
-    </div>
-    <DeleteCartItem id={cartItem.id} />
-  </CartItemStyled>
-);
+const CartItem = ({cartItem}) => {
+  if (!cartItem.item)
+    return (
+      <CartItemStyled>
+        <p>The item is no longer available.</p>
+        <DeleteCartItem id={cartItem.id} />
+      </CartItemStyled>
+    );
+
+  return (
+    <CartItemStyled>
+      <img width="100" src={cartItem.item.image} alt={cartItem.item.title} />
+      <div className="cart-item-details">
+        <h3>{cartItem.item.title}</h3>
+        <p>
+          {formatMoney(cartItem.item.price * cartItem.quantity)}
+          {' - '}
+          <em>
+            {cartItem.quantity} &times; {formatMoney(cartItem.item.price)} each
+          </em>
+        </p>
+      </div>
+      <DeleteCartItem id={cartItem.id} />
+    </CartItemStyled>
+  );
+};
 
 CartItem.propTypes = {
   cartItem: PropTypes.shape({

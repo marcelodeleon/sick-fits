@@ -1,0 +1,166 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Item/> matches the snapshot 1`] = `
+<ItemStyles__Item>
+  <img
+    alt="title"
+    src="somepng.jpg"
+  />
+  <Title>
+    <Link
+      href={
+        Object {
+          "pathname": "/item",
+          "query": Object {
+            "id": "ItemID",
+          },
+        }
+      }
+    >
+      <a>
+        title
+      </a>
+    </Link>
+  </Title>
+  <PriceTag>
+    $1,233.30
+  </PriceTag>
+  <p>
+    Awesome Description
+  </p>
+  <div
+    className="buttonList"
+  >
+    <Link
+      href={
+        Object {
+          "pathname": "update",
+          "query": Object {
+            "id": "ItemID",
+          },
+        }
+      }
+    >
+      <a>
+        Edit
+      </a>
+    </Link>
+    <AddToCart
+      id="ItemID"
+    />
+    <DeleteItem
+      id="ItemID"
+    />
+  </div>
+</ItemStyles__Item>
+`;
+
+exports[`<Item/> updates via props 1`] = `
+<ItemStyles__Item>
+  <img
+    alt="title"
+    src="somepng.jpg"
+  />
+  <Title>
+    <Link
+      href={
+        Object {
+          "pathname": "/item",
+          "query": Object {
+            "id": "ItemID",
+          },
+        }
+      }
+    >
+      <a>
+        title
+      </a>
+    </Link>
+  </Title>
+  <PriceTag>
+    $1,233.30
+  </PriceTag>
+  <p>
+    Awesome Description
+  </p>
+  <div
+    className="buttonList"
+  >
+    <Link
+      href={
+        Object {
+          "pathname": "update",
+          "query": Object {
+            "id": "ItemID",
+          },
+        }
+      }
+    >
+      <a>
+        Edit
+      </a>
+    </Link>
+    <AddToCart
+      id="ItemID"
+    />
+    <DeleteItem
+      id="ItemID"
+    />
+  </div>
+</ItemStyles__Item>
+`;
+
+exports[`<Item/> updates via props 2`] = `
+<ItemStyles__Item>
+  <img
+    alt="modified title"
+    src="somepng.jpg"
+  />
+  <Title>
+    <Link
+      href={
+        Object {
+          "pathname": "/item",
+          "query": Object {
+            "id": "ItemID",
+          },
+        }
+      }
+    >
+      <a>
+        modified title
+      </a>
+    </Link>
+  </Title>
+  <PriceTag>
+    $1,233.30
+  </PriceTag>
+  <p>
+    Awesome Description
+  </p>
+  <div
+    className="buttonList"
+  >
+    <Link
+      href={
+        Object {
+          "pathname": "update",
+          "query": Object {
+            "id": "ItemID",
+          },
+        }
+      }
+    >
+      <a>
+        Edit
+      </a>
+    </Link>
+    <AddToCart
+      id="ItemID"
+    />
+    <DeleteItem
+      id="ItemID"
+    />
+  </div>
+</ItemStyles__Item>
+`;
